@@ -57,8 +57,16 @@ const messages = {
   MISSING_SCHEME: 'Add https:// to the start, for example https://example.com.',
   UNSUPPORTED_SCHEME: 'Only http:// and https:// URLs can be shortened.',
   URL_TOO_LONG: 'This URL is longer than 2,048 characters once encoded.',
+  INVALID_LIFETIME: 'Lifetime must be one of: 1h, 24h, 7d, 30d, never.',
   INVALID_REQUEST: 'Send a JSON object with a "url" field.',
 } as const
+
+const lifetimeDurations: Record<Exclude<Lifetime, 'never'>, number> = {
+  '1h': 3_600_000,
+  '24h': 86_400_000,
+  '7d': 604_800_000,
+  '30d': 2_592_000_000,
+}
 
 function validation(code: keyof typeof messages): ValidationError {
   return new ValidationError(code, messages[code])
@@ -108,11 +116,30 @@ export function createLinkService(deps: {
       if (typeof value !== 'string') throw validation('INVALID_URL')
 
       const url = normalizeUrl(value)
+      const request = body as Record<string, unknown>
+      const lifetimeValue = Object.prototype.hasOwnProperty.call(request, 'lifetime')
+        ? request.lifetime
+        : '24h'
+      if (
+        typeof lifetimeValue !== 'string' ||
+        (lifetimeValue !== 'never' && !Object.prototype.hasOwnProperty.call(lifetimeDurations, lifetimeValue))
+      ) {
+        throw validation('INVALID_LIFETIME')
+      }
+
+      const lifetime = lifetimeValue as Lifetime
+      const createdAt = deps.clock.now()
+      const expiresAt =
+        lifetime === 'never' ? null : createdAt + lifetimeDurations[lifetime as Exclude<Lifetime, 'never'>]
       for (let attempt = 0; attempt < 5; attempt++) {
         const code = deps.generateCode()
         try {
-          deps.repository.insert({ code, url, createdAt: deps.clock.now(), expiresAt: null })
-          return { code, shortUrl: `${deps.baseUrl}/${code}`, expiresAt: null }
+          deps.repository.insert({ code, url, createdAt, expiresAt })
+          return {
+            code,
+            shortUrl: `${deps.baseUrl}/${code}`,
+            expiresAt: expiresAt === null ? null : new Date(expiresAt).toISOString(),
+          }
         } catch (error) {
           if (error instanceof DuplicateCodeError && attempt < 4) continue
           if (error instanceof DuplicateCodeError) throw new StorageError('Could not allocate link code')
@@ -123,7 +150,10 @@ export function createLinkService(deps: {
       throw new StorageError('Could not allocate link code')
     },
     resolve(code: string): string | null {
-      return deps.repository.findByCode(code)?.url ?? null
+      const link = deps.repository.findByCode(code)
+      if (link === undefined) return null
+      if (link.expiresAt !== null && deps.clock.now() >= link.expiresAt) return null
+      return link.url
     },
   }
 }

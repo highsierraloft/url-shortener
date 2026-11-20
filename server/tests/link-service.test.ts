@@ -204,6 +204,29 @@ describe('create: codes and short URLs', () => {
     expect(repository.findByCode('BBBBBBBB')?.url).toBe('https://example.com/two')
   })
 
+  it('never reuses a code after its link expires', () => {
+    const clock = fakeClock()
+    const repository = openLinkRepository(':memory:')
+    open.push(repository)
+    const service = createLinkService({
+      repository,
+      clock,
+      generateCode: fixedCodes('AAAAAAAA', 'AAAAAAAA', 'BBBBBBBB'),
+      baseUrl: 'http://short.test',
+    })
+
+    const expired = service.create({ url: 'https://example.com/old', lifetime: '1h' })
+    clock.advance(3_600_001)
+    const active = service.create({ url: 'https://example.com/new' })
+
+    expect(active.code).toBe('BBBBBBBB')
+    expect(repository.findByCode('AAAAAAAA')).toMatchObject({
+      code: 'AAAAAAAA',
+      url: 'https://example.com/old',
+    })
+    expect(service.resolve(expired.code)).toBeNull()
+    expect(service.resolve(active.code)).toBe('https://example.com/new')
+  })
 
   it('succeeds on the 5th attempt after 4 collisions in a row', () => {
     const codes = fixedCodes('AAAAAAAA', 'AAAAAAAA', 'AAAAAAAA', 'AAAAAAAA', 'AAAAAAAA', 'CCCCCCCC')
