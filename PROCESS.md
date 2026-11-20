@@ -72,3 +72,24 @@ The QA pass, run at the human's request, found 9 defects in Claude's draft. The 
   (`3efd939`). The rule is now in `CLAUDE.md`.
 - This conflicts with constitution principle VI, which gives git worktrees to Superpowers. Amending the
   constitution needs the human's approval.
+
+## 2026-11-20: Gate 1 approved, constitution 2.0.0
+
+- **Gate 1**: the human approved the spec.
+- **Constitution 1.0.0 → 2.0.0**, approved by the human. This is a MAJOR bump, because principle V is
+  redefined.
+  - **VI**: git worktrees are removed from Superpowers' execution duties. Worktrees, branches and PRs
+    are now forbidden, and all work goes on `main`.
+  - **V**: ADRs are dropped. Decisions with real alternatives go in the feature's `research.md`,
+    including the rejected options and the reasons.
+  - Gate 2, the final review and the governance rule on complexity now point to `research.md`.
+  - `CLAUDE.md` and `plan.md` were updated to match. This closes the plan's VI deviation and its V
+    action item.
+- **Phase 1 open items handled at plan level**:
+  - The D3 code clash is resolved by research R6: only 8-character letter-and-digit paths are treated
+    as codes, and every other server address is under `/api/`.
+  - The D8 conflict with Story 2 scenario 4 is resolved by research R10: redirects send
+    `Cache-Control: no-store`.
+  - Millisecond precision is in FR-013.
+- **301 or 302**: Claude recommended keeping 302. A 301 contradicts FR-010, and browsers cache it,
+  which defeats expiry. The human went ahead with the plan as written, so 302 stays (research R10).

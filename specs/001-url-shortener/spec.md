@@ -4,7 +4,7 @@
 
 **Created**: 2026-11-19
 
-**Status**: Clarified, waiting for human approval of the spec (constitution gate 1)
+**Status**: Approved by the human at gate 1 (2026-11-20)
 
 **Input**: Customer request, verbatim:
 

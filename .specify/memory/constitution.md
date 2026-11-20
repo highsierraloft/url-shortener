@@ -33,22 +33,23 @@ human decides whether the test or the spec changes.
 
 Rationale: a test edited to pass silently redefines the requirement.
 
-### V. Decisions Are Recorded as ADRs
+### V. Decisions Are Recorded in research.md
 
-Every decision with real alternatives MUST be recorded as an ADR in `docs/adr/`, including the
-rejected options and the reason each was rejected.
+Every decision with real alternatives MUST be recorded in the feature's `research.md` (Spec Kit plan
+phase): the decision, its rationale, and each rejected option with the reason it was rejected.
 
 Rationale: makes trade-offs reviewable and stops settled decisions from being relitigated.
 
 ### VI. Clear Process Ownership
 
 Spec Kit owns the specification phase: specify, clarify, plan, tasks, analyze. Superpowers owns
-execution: git worktrees, subagent-driven development, TDD, code review and verification.
+execution: subagent-driven development, TDD, code review and verification.
 Superpowers `brainstorming` and `writing-plans` MUST NOT be used; the Spec Kit artifacts replace
-them.
+them. Git worktrees, feature branches and pull requests MUST NOT be used; all work is committed
+directly to `main`.
 
 Rationale: two frameworks with overlapping planning steps would produce competing sources of
-truth.
+truth. Branches and worktrees add a bottleneck that does not fit the time box.
 
 ### VII. Verification Before Completion
 
@@ -68,13 +69,14 @@ Rationale: passing tests alone do not prove the service starts and behaves as sp
 
 ## Development Workflow and Quality Gates
 
-- Four human gates: (1) spec approved; (2) plan, ADRs and tasks approved; (3) failing tests
+- Four human gates: (1) spec approved; (2) plan, research and tasks approved; (3) failing tests
   reviewed before any implementation; (4) review findings triaged, each one fixed or rejected
   with a reason.
 - Each task is executed by a fresh subagent briefed with: goal, input files, the acceptance
   criteria it covers, constraints, definition of done and report format. After each task: a
   spec-compliance review, then a code-quality review.
-- A final review by a different model checks the full diff against the spec and the ADRs.
+- A final review by a different model checks the full diff against the spec and the decisions in
+  `research.md`.
 - Human interventions and review decisions are logged in `PROCESS.md` as they happen.
 - Commits follow Conventional Commits. The commit message is shown and approved before each
   commit.
@@ -85,7 +87,7 @@ This constitution supersedes `CLAUDE.md` and default agent behavior; `CLAUDE.md`
 guidance only. Amendments require human approval, a version bump and a `PROCESS.md` entry
 explaining the change. Versioning: MAJOR for removing or redefining a principle, MINOR for adding
 a principle or section, PATCH for wording. Every review, per task and final, checks compliance
-with these principles. Complexity not required by an acceptance criterion MUST be justified in an
-ADR or removed.
+with these principles. Complexity not required by an acceptance criterion MUST be justified in
+`research.md` or removed.
 
-**Version**: 1.0.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-19
+**Version**: 2.0.0 | **Ratified**: 2026-11-19 | **Last Amended**: 2026-11-20
