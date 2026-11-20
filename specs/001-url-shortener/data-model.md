@@ -45,7 +45,9 @@ with a code and a message ([contracts/http-api.md](./contracts/http-api.md) list
 1. `url` is absent, `""`, or only whitespace → `URL_REQUIRED`.
 2. `url` is present but not a string, including `null` → `INVALID_URL`.
 3. `new URL(url)` throws:
-   - if `new URL('https://' + url.trim())` would parse → `MISSING_SCHEME`
+   - if the trimmed input already starts with a scheme (`/^[A-Za-z][A-Za-z0-9+.-]*:/`, for example
+     `https://` on its own) → `INVALID_URL`, because adding `https://` is not the fix
+   - else if `new URL('https://' + url.trim())` would parse → `MISSING_SCHEME`
    - otherwise → `INVALID_URL`
 4. The protocol is not `http:` or `https:` → `UNSUPPORTED_SCHEME`.
 5. `href.length > 2048` → `URL_TOO_LONG`.

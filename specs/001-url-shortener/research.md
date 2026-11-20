@@ -136,7 +136,11 @@ probes in a scratch directory.
   1. Missing, empty, or only whitespace → `URL_REQUIRED`.
   2. Not a string → `INVALID_URL`.
   3. `new URL(input)` throws:
-     - if `new URL('https://' + input)` would parse → `MISSING_SCHEME`, with a hint to add `https://`
+     - if the trimmed input already starts with a scheme (`https://` alone, `https://exa mple.com`) →
+       `INVALID_URL`. The hint to add `https://` would be wrong advice there (break pass B6; human
+       decision, 2026-11-20).
+     - else if `new URL('https://' + input.trim())` would parse → `MISSING_SCHEME`, with a hint to add
+       `https://`
      - otherwise → `INVALID_URL`
   4. The protocol is not `http:` or `https:` → `UNSUPPORTED_SCHEME`.
   5. `href.length > 2048` → `URL_TOO_LONG`.
@@ -227,13 +231,18 @@ probes in a scratch directory.
     | Error | Status | Code |
     |-------|--------|------|
     | `ValidationError`, including a body that isn't a JSON object (raised by the service) | 400 | its own code |
-    | Fastify's own client errors (malformed JSON, empty body, wrong content type) | the status Fastify gives (400 or 415) | `INVALID_REQUEST` |
+    | Fastify's own client errors (malformed JSON, empty JSON body) | 400 | `INVALID_REQUEST` |
+    | A present body whose content type isn't `application/json`, including a present body sent without a content type | 415 | `INVALID_REQUEST` |
     | Body over the limit | 413 | `PAYLOAD_TOO_LARGE` |
     | Save failed | 500 | `STORAGE_ERROR` |
     | Anything else | 500 | `INTERNAL_ERROR` |
 
   - Every error body has the shape `{ "error": { "code", "message" } }`.
   - Fastify's request body limit (`bodyLimit`) is set to 16 KiB.
+  - The server accepts JSON only. The POST route checks the request content type and rejects a present
+    body with a non-JSON or missing content type as `415 INVALID_REQUEST`; a request with no body is
+    `400 INVALID_REQUEST`, regardless of content type. Fastify's parser configuration is unchanged
+    (human decision at gate 3, 2026-11-20).
 - **Rationale**:
   - All rules and messages live in one place, so every invalid input gets a message saying what to
     fix (SC-004).
@@ -247,6 +256,10 @@ probes in a scratch directory.
     Avoiding both needs custom settings and a custom error formatter.
   - *`zod`*: a dependency to validate two fields.
   - *Fastify's default 1 MiB limit*: about 500 times larger than any valid request.
+  - *Relying on Fastify's parser configuration to enforce JSON-only input*: a non-JSON body could
+    reach the service and get `400`. The route-level content-type guard gives every present non-JSON
+    or untyped body `415` while keeping Fastify's parser configuration unchanged. The human chose
+    JSON only.
 
 ## R12. Durability and startup storage checks
 
@@ -286,7 +299,7 @@ probes in a scratch directory.
   |----------|---------|-------|
   | `PORT` | `3000` | 1 to 65535 |
   | `BASE_URL` | `http://localhost:<PORT>` | `http` or `https`; no path, query or fragment; a trailing slash is removed |
-  | `DB_PATH` | `data/links.db`, relative to `server/` | |
+  | `DB_PATH` | `data/links.db`, relative to `server/` | A relative path, including the default, is resolved against the `server/` folder, never the current working directory. Otherwise starting the server from another folder would open a new, empty database (break pass B3). |
 
   An invalid value prints a message and exits with code 1. The server listens on host `localhost`
   only. Fastify then binds both loopback addresses, 127.0.0.1 and ::1.
@@ -307,7 +320,9 @@ probes in a scratch directory.
 - **Decision**:
   - One page, built with React 19 and Vite 8. No router, no state library, no UI kit.
   - It calls `POST /api/links` with `fetch`. In dev, Vite's server forwards `/api` to
-    `http://localhost:3000`, so the page and the API share one origin and no CORS setup is needed.
+    `http://localhost:<PORT>`, so the page and the API share one origin and no CORS setup is needed.
+    The proxy reads the same `PORT` variable as the server (default `3000`), so `PORT=4000 bun run dev`
+    keeps the page working (break pass B2).
   - It always sends `lifetime`, from a select that defaults to 24 hours.
   - It shows `shortUrl` with a copy button, and the expiration time. The time comes from the server's
     `expiresAt`, formatted with `Intl.DateTimeFormat` in the viewer's time zone, or the page shows
@@ -338,8 +353,9 @@ probes in a scratch directory.
   **Web tests**: Testing Library on jsdom (a simulated browser). `fetch` is replaced with a stub, and
   `TZ=UTC` keeps date formatting predictable.
 
-  **Manual checks**: SC-001 and SC-007 can't be automated tests, so they are manual checks in
-  `quickstart.md` (spec, "Test design").
+  **Manual checks**: SC-001 needs a first-time human, so it is a manual check in `quickstart.md`
+  (spec, "Test design"). SC-007 also has a manual network check in `quickstart.md`; its p95 threshold
+  is covered by an automated test in `server/tests/routes.test.ts`.
 - **Rationale**:
   - Constitution II: each acceptance criterion gets a failing test first, and time comes from an
     injected clock.

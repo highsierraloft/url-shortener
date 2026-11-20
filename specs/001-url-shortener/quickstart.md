@@ -28,6 +28,9 @@ waits in real time.
 bun run dev         # server on http://localhost:3000, UI on http://localhost:5173
 ```
 
+Stop it with Ctrl+C in its terminal, which signals every process it started. Killing only the `bun`
+process leaves the server and Vite running (break pass B1).
+
 Optional settings, read by the server at startup (research R13): `PORT` (default `3000`), `BASE_URL`
 (default `http://localhost:<PORT>`), and `DB_PATH` (default `server/data/links.db`).
 

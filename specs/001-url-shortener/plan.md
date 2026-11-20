@@ -46,8 +46,9 @@ covers both loopback addresses, 127.0.0.1 and ::1. The UI dev server runs on `lo
 - `server/`: the JSON API and redirects
 - `web/`: the one-page UI
 
-**Performance Goals**: SC-007. 95% of redirects are answered in under 0.5 s when run locally. This is
-a manual check ([quickstart.md](./quickstart.md)).
+**Performance Goals**: SC-007. 95% of redirects are answered in under 0.5 s when run locally. An
+automated p95 test in `server/tests/routes.test.ts` covers the threshold, and
+[quickstart.md](./quickstart.md) has a manual network check.
 
 **Constraints**:
 - bun only, for installing and running scripts.

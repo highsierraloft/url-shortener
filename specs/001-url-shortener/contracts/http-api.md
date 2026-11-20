@@ -58,7 +58,8 @@ No link is created in any of these cases.
 | 400 | `UNSUPPORTED_SCHEME` | The scheme isn't `http` or `https` (for example `javascript:`, `ftp:`, `mailto:`) | `Only http:// and https:// URLs can be shortened.` |
 | 400 | `URL_TOO_LONG` | The normalized URL is longer than 2,048 characters | `This URL is longer than 2,048 characters once encoded.` |
 | 400 | `INVALID_LIFETIME` | `lifetime` is present but isn't one of the allowed values | `Lifetime must be one of: 1h, 24h, 7d, 30d, never.` |
-| 400 or 415 | `INVALID_REQUEST` | Malformed JSON, the body isn't a JSON object, or the content type isn't JSON | `Send a JSON object with a "url" field.` |
+| 400 | `INVALID_REQUEST` | Malformed or empty JSON, the body isn't a JSON object, or there is no body (even with a non-JSON `Content-Type`) | `Send a JSON object with a "url" field.` |
+| 415 | `INVALID_REQUEST` | A present body whose content type isn't `application/json`, including a present body sent without a content type. Only JSON is accepted. | `Send a JSON object with a "url" field.` |
 | 413 | `PAYLOAD_TOO_LARGE` | The body is larger than 16 KiB | `The request is too large.` |
 | 500 | `STORAGE_ERROR` | The link couldn't be saved, or all 5 code attempts collided | `The link couldn't be saved. Try again.` |
 | 500 | `INTERNAL_ERROR` | Any other unexpected failure | `Something went wrong. Try again.` |

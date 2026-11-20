@@ -1,0 +1,10 @@
+{
+  "name": "url-shortener",
+  "private": true,
+  "workspaces": ["server", "web"],
+  "scripts": {
+    "test": "bun run --filter '*' test",
+    "typecheck": "bun run --filter '*' typecheck",
+    "dev": "bun run --filter '*' dev"
+  }
+}

@@ -148,7 +148,9 @@ export type CreateLinkResult = { ok: true; link: CreatedLink } | { ok: false; me
 export function createLink(url: string, lifetime: Lifetime): Promise<CreateLinkResult>
   // fetch('/api/links', { method: 'POST', headers: { 'content-type': 'application/json' },
   //   body: JSON.stringify({ url, lifetime }) })
-  // failure → the server's error.message; fetch rejects → "Couldn't reach the service. Try again."
+  // failure with a JSON error body → the server's error.message;
+  // fetch rejects, or a failure without a JSON { error: { message } } body (e.g. the dev proxy's 502)
+  //   → "Couldn't reach the service. Try again."
 
 // web/src/App.tsx
 export function App(): React.JSX.Element | null
@@ -203,7 +205,8 @@ for the right reason.
       covering `src`, `tests` and `vite.config.ts`, so test files are type-checked too
     - `vite.config.ts`:
       - React plugin
-      - `server.proxy` sends `/api` to `http://localhost:3000`
+      - `server.proxy` sends `/api` to `http://localhost:${process.env.PORT ?? 3000}`, the same `PORT`
+        the server reads (break pass B2)
       - `test`: `environment: 'jsdom'`, `env: { TZ: 'UTC' }`, `passWithNoTests: true`, `globals: true`.
         Testing Library only cleans up the DOM after each test when Vitest's globals are on.
     - `main.tsx` renders `<App />` into `#root`, complete. The `App` placeholder returns `null`.
@@ -362,6 +365,10 @@ parallel once T001 is done.
       `createLinkService({ repository, clock: systemClock, generateCode, baseUrl })` →
       `buildApp({ service, logger: true })` → `listen({ port, host: 'localhost' })`.
     - On `ConfigError` or `StorageError`: print the message with `console.error` and exit with code 1.
+    - Resolve a relative `config.dbPath` against the `server/` folder (from `import.meta.url`), never
+      `process.cwd()`. Otherwise `node server/src/main.ts`, run from the repository root, opens a new,
+      empty database (break pass B3, research R13). T010 verifies this, because a test would have to
+      write the real `server/data/links.db`.
 
 ---
 
@@ -434,6 +441,16 @@ parallel once T001 is done.
   - Check 7 needs a stop and a restart. Check 8 needs a restart with `BASE_URL` set. Check 9 runs
     `server start` on its own. Stop every server you started before you finish, and remove
     `/tmp/ro-links`.
+  - **Stopping `bun run dev`** (break pass B1):
+    - Killing only the `bun` PID leaves `node --watch` and Vite running.
+    - Start it in its own process group, and stop it by killing the whole group (`kill -- -<pgid>`).
+    - Then confirm nothing listens on ports 3000 and 5173 (`lsof -nP -iTCP:<port> -sTCP:LISTEN`).
+  - **Database path** (break pass B3):
+    1. Start `node server/src/main.ts` from the repository root, with no `DB_PATH`, and create a link.
+    2. Stop it, then start it with `bun run --cwd server start`.
+    3. The link still redirects, and no `data/` folder appeared at the repository root.
+  - **Proxy port** (break pass B2): with `PORT=4000 bun run dev`, creating a link from the page still
+    works.
   - Paste each command's output into the report.
   - Write `README.md` with:
     - what the project is

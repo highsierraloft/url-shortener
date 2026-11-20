@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "strict": true,
+    "jsx": "react-jsx",
+    "moduleResolution": "bundler",
+    "noEmit": true,
+    "skipLibCheck": true,
+    "types": ["vitest/globals"]
+  },
+  "include": ["src", "tests", "vite.config.ts"]
+}

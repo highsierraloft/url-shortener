@@ -23,7 +23,7 @@ no sign-in and no stored state.
 | Submitting | The button is disabled and reads "Shortening…". |
 | Success | `shortUrl` as a link, the Copy button, and either "Expires on {date and time}" or "Never expires". The time comes from the server's `expiresAt`, formatted with `Intl.DateTimeFormat` (date and time) in the viewer's time zone. The page never calculates expiry from its own clock (FR-014). Any earlier error is cleared. |
 | Error (400, 413 or 500) | The error message from the server's `error.message`. No result is shown. |
-| Network failure | `Couldn't reach the service. Try again.` |
+| Network failure | `Couldn't reach the service. Try again.` This covers a request that fails outright. It also covers any failed response without a JSON error body (`{ "error": { "message" } }`), such as the dev proxy's empty `502` when the API is down (break pass B18). |
 
 ## Request the page sends
 
