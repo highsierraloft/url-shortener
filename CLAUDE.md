@@ -20,5 +20,6 @@ Every package defines:
 
 ## Workflow rules
 - Spec phase: Spec Kit skills (`/speckit-*`). Execution phase: Superpowers skills. Do not use Superpowers brainstorming or writing-plans: the Spec Kit artifacts replace them.
+- Git: work directly on `main` and push to `origin main`. No feature branches, git worktrees or pull requests for now: they add a bottleneck that doesn't fit the time box. So skip Superpowers `using-git-worktrees`, and when `finishing-a-development-branch` runs, take its "commit to main" path, never "open a PR".
 - A PostToolUse hook runs typecheck + tests after every .ts/.tsx edit. Failures during the RED step of TDD are expected.
 - Show the commit message and wait for approval before every commit.

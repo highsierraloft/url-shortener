@@ -63,3 +63,12 @@ The QA pass, run at the human's request, found 9 defects in Claude's draft. The 
 - Part of D3, a code matching one of the app's own page addresses, was flagged as a bug. No decision
   has been made yet.
 - Gate 1 (spec approval): no explicit approval has been recorded yet.
+
+## 2026-11-20: Git workflow
+
+- The human ruled out branches, PRs and git worktrees for this project, because they add a bottleneck
+  that doesn't fit the time box. All work goes directly on `main`.
+- The spec commit, which Claude had made on a feature branch, was moved to `main` and pushed
+  (`3efd939`). The rule is now in `CLAUDE.md`.
+- This conflicts with constitution principle VI, which gives git worktrees to Superpowers. Amending the
+  constitution needs the human's approval.
