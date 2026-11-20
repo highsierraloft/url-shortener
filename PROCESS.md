@@ -93,3 +93,35 @@ The QA pass, run at the human's request, found 9 defects in Claude's draft. The 
   - Millisecond precision is in FR-013.
 - **301 or 302**: Claude recommended keeping 302. A 301 contradicts FR-010, and browsers cache it,
   which defeats expiry. The human went ahead with the plan as written, so 302 stays (research R10).
+
+## 2026-11-20: `/speckit-analyze` triage
+
+The human asked for every finding to be either fixed or ignored with a reason. Claude made the calls;
+the full table was shown to the human.
+
+- **Fixed** (12 findings):
+  - The final review by a different model, and gate 4, added to `tasks.md` (constitution).
+  - An automated test for FR-015 added to T003.
+  - An automated timing test for SC-007 added to T003.
+  - `plan.md`'s structure and coverage table brought in line with `tasks.md`.
+  - The spec's stale "accepted risk" notes for D3 and D8, and its test-design note, updated.
+  - Data-model rule for `{"url": null}` made unambiguous: it gives `INVALID_URL`, not `URL_REQUIRED`.
+  - The missing-scheme hint now checks the trimmed input.
+  - A misattributed error row in research R11 corrected.
+  - Web setup: Vitest globals on, so Testing Library cleans up between tests; test files included in
+    the type check.
+  - T010 now says how to restart servers between checks.
+  - `PROCESS.md` logging added to the task notes.
+- **Ignored, with reasons** (5 findings):
+  - SC-001 stays manual: it needs a first-time human.
+  - Only T001 has an explicit "Done when"; the shared brief covers the rest.
+  - The US2 parts of the UI are built in US1 tasks.
+  - Assumptions restate some FR values.
+  - Tool-version compatibility isn't verified; T001's checks catch it.
+
+## 2026-11-20: Gate 2 approved
+
+- The human approved T001's placeholder modules: typed stubs that only throw `Not implemented`. This is
+  the scaffolding exception the TDD skill reserves for the human.
+- **Gate 2**: the human approved the plan, research and tasks. The redirect stays a 302 (research R10).
+- Execution moves to a separate thread, using Superpowers subagent-driven development on `tasks.md`.

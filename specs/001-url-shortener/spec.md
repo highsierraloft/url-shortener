@@ -331,8 +331,8 @@ decided. The IDs D1 to D9 and Q1 to Q3 match that review.
 
 | ID | Pitfall | What remains |
 |----|---------|--------------|
-| D3 | "At most 8 characters" allows short codes that are easy to guess. The spec doesn't say whether upper and lower case differ. A code could match one of the app's own page addresses (for example, `settings`). | FR-006 stands as written, and these risks remain. |
-| D8 | A "temporary" redirect can still be cached if the response allows it. | FR-010 stands. A browser that cached a redirect may keep following it after the link expires. |
+| D3 | "At most 8 characters" allows short codes that are easy to guess. The spec doesn't say whether upper and lower case differ. A code could match one of the app's own page addresses (for example, `settings`). | FR-006 stands as written. The plan settles all three within FR-006: codes are exactly 8 case-sensitive letters and digits, and only such paths count as codes, while every app address is under `/api/` (research R6). |
+| D8 | A "temporary" redirect can still be cached if the response allows it. | FR-010 stands. The plan sends `Cache-Control: no-store` on redirects, so browsers don't keep them (research R10). |
 | D9 | URLs can contain a user name and password (`https://user:pass@host`), or disguise the real host (`https://paypal.com@evil.example` goes to evil.example). | Such URLs are accepted. A password in a URL is stored as plain text and visible to anyone who opens the short link. |
 
 ### Out of scope (customer, 2026-11-20)
@@ -354,12 +354,14 @@ decided. The IDs D1 to D9 and Q1 to Q3 match that review.
 | A missing, `null`, number or list URL sent through the programmatic interface | Rejected with a message (FR-002). A limit on request size is left to the plan. |
 | The same form submitted twice | Two separate links (FR-005). |
 
-### Test design (not decided; for the plan)
+### Test design (decided in the plan and tasks)
 
 - **SC-005 can't fail on its own.** 10,000 random codes out of about 2×10^14 never collide, so the test
-  passes even without collision handling. Testing it needs a controllable code generator that can force
-  a collision.
-- **SC-001 and SC-007 can't be automated tests.** The plan should treat them as manual checks.
+  passes even without collision handling. The tests therefore use a controllable code generator to
+  force a collision (T003).
+- **SC-007** is checked twice: by an automated in-process timing test (T003), and by a manual check
+  over the network (quickstart).
+- **SC-001** needs a person who has never seen the UI, so it stays a manual check (quickstart).
 
 ## What Changes at Scale (documented, not built)
 

@@ -52,8 +52,8 @@ No link is created in any of these cases.
 
 | Status | `code` | When | `message` |
 |--------|--------|------|-----------|
-| 400 | `URL_REQUIRED` | `url` is missing, empty, or only whitespace | `Enter a URL to shorten.` |
-| 400 | `INVALID_URL` | `url` isn't a string, or can't be read as a URL | `This is not a valid URL. Check it and try again.` |
+| 400 | `URL_REQUIRED` | `url` is absent, `""`, or only whitespace | `Enter a URL to shorten.` |
+| 400 | `INVALID_URL` | `url` is present but isn't a string (including `null`), or can't be read as a URL | `This is not a valid URL. Check it and try again.` |
 | 400 | `MISSING_SCHEME` | `url` has no scheme, and would be valid with `https://` added (for example `example.com`) | `Add https:// to the start, for example https://example.com.` |
 | 400 | `UNSUPPORTED_SCHEME` | The scheme isn't `http` or `https` (for example `javascript:`, `ftp:`, `mailto:`) | `Only http:// and https:// URLs can be shortened.` |
 | 400 | `URL_TOO_LONG` | The normalized URL is longer than 2,048 characters | `This URL is longer than 2,048 characters once encoded.` |

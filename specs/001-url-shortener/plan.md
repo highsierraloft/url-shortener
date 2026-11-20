@@ -28,8 +28,9 @@ rejected.
 **Primary Dependencies**:
 - `server/`: Fastify 5.12.
 - `web/`: React 19.3, Vite 8.3, `@vitejs/plugin-react` 6.3.
-- Development only: Vitest 5.1, `@testing-library/react` 16.3, `@testing-library/user-event`, jsdom 31,
-  `@types/node`, `@types/react`, `@types/react-dom`.
+- Development only: Vitest 5.1, `@testing-library/react` 16.3 (with its required peer
+  `@testing-library/dom`), `@testing-library/user-event`, jsdom 31, `@types/node`, `@types/react`,
+  `@types/react-dom`.
 - There are no other runtime dependencies.
 
 **Storage**: a SQLite file through `node:sqlite` (research R3, R12). The default path is
@@ -95,17 +96,19 @@ All paths below are relative to `server/` or `web/`. Story scenarios are written
 | FR-001, FR-005, FR-007 | `routes.ts` (`POST /api/links`) → `link-service.ts` `create` | `routes.test.ts`: US1-1, US1-3 |
 | FR-002, FR-019 | `link-service.ts` (validation and normalization) | `link-service.test.ts`: every rule and message; `routes.test.ts`: US1-2, US1-4 |
 | FR-003, FR-004, FR-006 | `link-service.ts` (generator and retry), `link-repository.ts` (primary key) | `link-service.test.ts`: code format, forced collision, every attempt colliding; `link-repository.test.ts`: duplicate key |
-| FR-008, FR-009, FR-010, FR-013 | `routes.ts` (`GET /:code`, not-found handler) → `link-service.ts` `resolve` | `routes.test.ts`: US1-2, US1-5, US2-2, US2-3, US2-4 (fake clock at T−1 s, T, T+1 ms; `no-store`; identical 404 bodies) |
-| FR-011, FR-012 | `link-service.ts` (lifetime table, `expiresAt`) | `link-service.test.ts`, `routes.test.ts`: US2-1, US2-5, US2-6, US2-7 |
+| FR-008, FR-009, FR-010 | `routes.ts` (`GET /:code`, not-found handler) → `link-service.ts` `resolve` | `routes.test.ts`: US1-2, US1-5 (`302`, `no-store`, the 404 page) |
+| FR-013 | `link-service.ts` `resolve` (expiry check) | `expiration.test.ts`: US2-2, US2-3, US2-4 (fake clock at T−1 s, T, T+1 ms; identical 404 responses) |
+| FR-011, FR-012 | `link-service.ts` (lifetime table, `expiresAt`) | `expiration.test.ts`: US2-1, US2-5, US2-6, US2-7 |
 | FR-014 | `App.tsx` (formats the server's `expiresAt`) | `App.test.tsx` |
-| FR-015 | No update or delete path exists; the repository only offers `insert` and `findByCode` | by construction |
+| FR-015 | No update or delete path exists; the repository only offers `insert` and `findByCode` | `routes.test.ts`: `PUT`, `PATCH` and `DELETE` on `/api/links/{code}` and `/{code}` return 404 |
 | FR-016 | No authentication anywhere | `routes.test.ts`: every request is sent without credentials |
 | FR-017 | `link-repository.ts` (file database) | `link-repository.test.ts`: create, close, reopen |
 | FR-018 | [contracts/http-api.md](./contracts/http-api.md); `api.ts` in `web/` calls the same endpoint | `App.test.tsx`: the request's shape |
-| FR-020 | `config.ts` (`BASE_URL`) → `shortUrl` | `config.test.ts`, `routes.test.ts` |
+| FR-020 | `config.ts` (`BASE_URL`) → `shortUrl` | `config.test.ts`, `startup.test.ts`, `routes.test.ts` |
 | FR-021 | `link-service.ts` (returns only after `insert` succeeds), error handler (`STORAGE_ERROR`) | `link-service.test.ts`, `routes.test.ts`: failing insert means no `shortUrl` |
-| FR-022 | `link-repository.ts` (startup write check), `main.ts` (exit code 1) | `link-repository.test.ts`: write-protected file, read-only folder |
-| SC-001, SC-007 | none | Manual ([quickstart.md](./quickstart.md)) |
+| FR-022 | `link-repository.ts` (startup write check), `main.ts` (exit code 1) | `link-repository.test.ts`: write-protected file, read-only folder; `startup.test.ts`: exit code 1 with a message |
+| SC-007 | none (a performance outcome) | `routes.test.ts`: 95th percentile of 100 redirects under 500 ms; also a manual check over the network ([quickstart.md](./quickstart.md)) |
+| SC-001 | none (a usability outcome) | Manual: needs a first-time human ([quickstart.md](./quickstart.md)) |
 
 ## Project Structure
 
@@ -147,10 +150,13 @@ server/
 │   │                        #          Clock and CodeGenerator types and their production versions
 │   └── link-repository.ts   # Layer 3: open and check storage, schema, insert, findByCode
 └── tests/
+    ├── helpers.ts           # fakeClock, fixedCodes, createTestApp (test utilities)
     ├── config.test.ts
-    ├── link-service.test.ts
     ├── link-repository.test.ts
-    └── routes.test.ts       # HTTP acceptance tests for Stories 1 and 2, through app.inject()
+    ├── startup.test.ts      # spawns main.ts: exit code 1 on bad config or storage
+    ├── link-service.test.ts
+    ├── routes.test.ts       # HTTP acceptance tests for Story 1, through app.inject()
+    └── expiration.test.ts   # Story 2: lifetimes and expiry, with a fake clock
 
 web/
 ├── package.json             # dev: vite | test: vitest run | typecheck: tsc --noEmit
@@ -160,6 +166,7 @@ web/
 ├── src/
 │   ├── main.tsx
 │   ├── App.tsx              # The one page: form, result, errors
+│   ├── App.css              # Optional plain styles
 │   └── api.ts               # createLink(url, lifetime) → POST /api/links
 └── tests/
     └── App.test.tsx
@@ -186,7 +193,7 @@ This was re-checked after writing [data-model.md](./data-model.md), [contracts/]
 [quickstart.md](./quickstart.md). The design added no dependencies, layers, tables or endpoints beyond
 those in the coverage table. The result is unchanged: pass.
 
-## Before gate 2 (plan, research and tasks approved)
+## Gate 2
 
-1. Settle the redirect status code: 302 (as planned, research R10) or 301.
-2. Run `/speckit-tasks`.
+The human approved the plan, research and tasks on 2026-11-20. The redirect stays a 302 (research
+R10). Next: execute [tasks.md](./tasks.md) with Superpowers subagent-driven development.

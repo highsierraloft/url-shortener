@@ -42,10 +42,10 @@ read the lifetime back.
 The service checks these in order and stops at the first failure. Each failure is a `ValidationError`
 with a code and a message ([contracts/http-api.md](./contracts/http-api.md) lists the exact messages).
 
-1. `url` is missing, empty, or only whitespace → `URL_REQUIRED`.
-2. `url` is not a string → `INVALID_URL`.
+1. `url` is absent, `""`, or only whitespace → `URL_REQUIRED`.
+2. `url` is present but not a string, including `null` → `INVALID_URL`.
 3. `new URL(url)` throws:
-   - if `new URL('https://' + url)` would parse → `MISSING_SCHEME`
+   - if `new URL('https://' + url.trim())` would parse → `MISSING_SCHEME`
    - otherwise → `INVALID_URL`
 4. The protocol is not `http:` or `https:` → `UNSUPPORTED_SCHEME`.
 5. `href.length > 2048` → `URL_TOO_LONG`.

@@ -226,8 +226,8 @@ probes in a scratch directory.
 
     | Error | Status | Code |
     |-------|--------|------|
-    | `ValidationError` | 400 | its own code |
-    | Fastify's own client errors (malformed JSON, wrong content type, body that isn't an object) | the status Fastify gives (400 or 415) | `INVALID_REQUEST` |
+    | `ValidationError`, including a body that isn't a JSON object (raised by the service) | 400 | its own code |
+    | Fastify's own client errors (malformed JSON, empty body, wrong content type) | the status Fastify gives (400 or 415) | `INVALID_REQUEST` |
     | Body over the limit | 413 | `PAYLOAD_TOO_LARGE` |
     | Save failed | 500 | `STORAGE_ERROR` |
     | Anything else | 500 | `INTERNAL_ERROR` |
