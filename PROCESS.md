@@ -6,8 +6,8 @@ Human interventions and review decisions (constitution, Development Workflow and
 
 The URL shortener implementation and T001–T010 are complete. The final root test run passed all 220
 tests; server and web type checks passed. Gate 4's four review findings were addressed and the scoped
-re-review accepted the fixes. SC-001 remains unverified until a first-time user completes its timed
-check. The live curl transcripts for all 12 acceptance scenarios are in `docs/verification.md`; the
+re-review accepted the fixes. SC-001 is verified based on the project owner's report that the
+first-time flow took 11 seconds. The live curl transcripts for all 12 acceptance scenarios are in `docs/verification.md`; the
 temporary API and Vite sessions were stopped and their database removed. The approved US1 and US2
 commits are `2900ebe` (`feat: implement URL shortening and redirect flows`) and `a227de5`
 (`feat: add link expiration`); the approved documentation commit is `docs: finalize reviewer and
@@ -135,7 +135,7 @@ estimates of focused effort or person-hours. Timestamps are UTC.
 
 ## Limitations
 
-- **SC-001 is unverified.** It requires a first-time user to finish the page workflow within 30 seconds. No qualifying participant completed that timed check.
+- **SC-001 is marked verified from the project owner's report of an 11-second first-time flow.** No separate participant notes are recorded.
 - **SC-007 is a local measurement.** T010 recorded a p95 of `0.000761s` in the project's timing check; it does not measure network or deployment latency.
 - **The adversarial pass is not formal mutation analysis.** Results apply to the specific throwaway variants exercised; no exhaustive mutation score exists.
 - **Phase durations are event windows only.** No time-tracking data records active labor.
@@ -442,6 +442,11 @@ covers bodyless `text/plain`. The HTTP contract, R11 JSON-only decision and SC-0
 and research now match implementation and tests. SC-001 remains unverified until a first-time user
 completes its timed check. The scoped re-review passed all four findings; root tests pass 220/220 and
 both package typechecks pass.
+
+## 2026-11-20: SC-001 status update
+
+The project owner reported completing the first-time flow in 11 seconds. The README records SC-001 as
+`VERIFIED`; no separate participant notes are recorded.
 
 ## What I'd do differently
 

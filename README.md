@@ -77,7 +77,7 @@ The spec numbers scenarios as `US1-1` through `US1-5` and `US2-1` through `US2-7
 | US2-5 — reject unsupported lifetimes | `server/tests/expiration.test.ts` — parameterized `HTTP: invalid lifetimes` test, `answers %s with 400 INVALID_LIFETIME and stores nothing` | PASS |
 | US2-6 — default to 24 hours | `server/tests/expiration.test.ts` — `HTTP: expiresAt from the lifetime` / `defaults to 24 hours when lifetime is omitted` | PASS |
 | US2-7 — never-expiring links keep working | `server/tests/expiration.test.ts` — `never gives expiresAt null`; `a never link still redirects 100 years later`; `web/tests/App.test.tsx` — `shows "Never expires" when expiresAt is null` | PASS |
-| SC-001 — first-time creator completes the flow in under 30 seconds without instructions | No automated test establishes this usability measure. | UNVERIFIED — a first-time user must test it. |
+| SC-001 — first-time creator completes the flow in under 30 seconds without instructions | Manual first-time-user check reported by the project owner; completed in 11 seconds. | VERIFIED |
 
 ## Repository structure
 
