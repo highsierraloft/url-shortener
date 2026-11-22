@@ -89,10 +89,17 @@ web/tests/                  Interface tests
 specs/001-url-shortener/    Feature spec, plan, tasks, contracts, and research
 docs/                       Verification record
 PROCESS.md                  Development method and review record
-ai-session/                 Index for session-related records
+transcript/                 AI session export: user and agent messages from both threads
+ai-session/                 Session records index, Codex review, break-pass report
 .specify/memory/constitution.md
                             Project constraints and quality gates
 ```
+
+## AI session export
+
+- [Transcripts](transcript/README.md) of the two Claude Code threads: [specification and planning](transcript/url-shortener-service-specification.md), and [readiness check and implementation](transcript/url-shortener-spec-readiness-check.md). They contain the visible user and agent messages. Tool output and internal reasoning are not included.
+- [Codex review of the failing test suite](ai-session/codex-review.md) (findings C1–C12) and the [adversarial break-pass report](ai-session/break-report.md) (bugs B1–B21).
+- [Process log](PROCESS.md): the human gates, interventions, and how each review finding was handled.
 
 ## Project records
 

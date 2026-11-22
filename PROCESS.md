@@ -78,7 +78,7 @@ to `specs/001-url-shortener/research.md`; there is no separate ADR directory.
 
 The human confirmed these recommendations and requested the missing tests. B2, B6 and B18 plan
 conflicts were approved; B1 and B3 were also added to the plan. The detailed review is in
-`.superpowers/sdd/tasks/codex-review.md`.
+[ai-session/codex-review.md](ai-session/codex-review.md).
 
 ### Task and final reviews
 
@@ -116,7 +116,7 @@ changes. The approved changes were incorporated; B1 and B3 were also added to th
 These are run artifacts from the break pass, not a formal mutation-testing run. No mutation-testing
 tool, mutation score, or exhaustive mutant count was recorded. The counts above describe the tested
 scratch variants and test runs only. Full cases and observed behavior are recorded in the break pass
-section below and `.superpowers/sdd/tasks/break-report.md`.
+section below and [ai-session/break-report.md](ai-session/break-report.md).
 
 ## Time by phase
 
@@ -382,7 +382,7 @@ Each bug gets a failing test, except where `[no test]` says why that isn't possi
 Codex reviewed the scaffold and T002–T005 tests read-only and reported 12 findings (C1–C12): 6 Important,
 6 Minor. Claude agrees with all 12. Five are already covered by break-pass tests: C2 by B15, C3 by B13,
 C5 by B21, C6 partly by B12, and C7 by B10. Nothing has been fixed: the human confirms first. Full
-findings are in `.superpowers/sdd/tasks/codex-review.md`.
+findings are in [ai-session/codex-review.md](ai-session/codex-review.md).
 
 | Finding | Decision | Reason |
 |---------|----------|--------|
